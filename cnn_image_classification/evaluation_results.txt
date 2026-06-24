@@ -1,0 +1,16 @@
+Validation Loss: 0.1317
+Validation Accuracy: 0.9796
+
+Confusion Matrix:
+[[81  0]
+ [ 2 15]]
+
+Classification Report:
+              precision    recall  f1-score   support
+
+       normal(0)       0.98      1.00      0.99        81
+       abnormal(1)       1.00      0.88      0.94        17
+
+    accuracy                           0.98        98
+   macro avg       0.99      0.94      0.96        98
+weighted avg       0.98      0.98      0.98        98

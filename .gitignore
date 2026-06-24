@@ -1,0 +1,48 @@
+# ============================================
+# TimeSyncDiag 后端 - .gitignore
+# ============================================
+
+# ── Python ──
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+.Python
+
+# ── 虚拟环境 ──
+.venv/
+venv/
+env/
+.conda/
+
+# ── uv lock ──
+uv.lock
+
+# ── 环境变量 ──
+.env
+.env.local
+.env.*.local
+
+# ── 数据文件 ──
+fastapi/data/realtime/
+fastapi/data/motouData/
+fastapi/data/otherData/
+
+# ── IDE ──
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ── 操作系统 ──
+.DS_Store
+Thumbs.db
+
+# ── Jupyter ──
+.ipynb_checkpoints/
+
+# ── 日志 ──
+*.log
+pandasai.log

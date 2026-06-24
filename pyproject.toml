@@ -1,0 +1,100 @@
+[project]
+name = "timesync-diag"
+version = "1.0.0"
+description = "时序对齐图像诊断系统 - TimescaleDB时序数据 + MinIO云图 + QwenVL图像诊断"
+requires-python = ">=3.11"
+dependencies = [
+    # Web Framework
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    "python-multipart>=0.0.6",
+    "httpx>=0.25.0",
+    "websockets>=12.0",
+
+    # Database (TimescaleDB / PostgreSQL)
+    "sqlalchemy>=2.0.0",
+    "psycopg2-binary>=2.9.0",
+    "pytz>=2023.3",
+
+    # Message Queue (Kafka)
+    "kafka-python>=2.0.2",
+
+    # Object Storage (MinIO)
+    "minio>=7.2.0",
+
+    # Data Processing
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+
+    # Image Processing
+    "Pillow>=10.0.0",
+
+    # Visualization
+    "matplotlib>=3.7.0",
+
+    # LLM / LangChain
+    "langchain-openai>=0.1.0",
+    "langchain-core>=0.3.0",
+    "langgraph>=0.2.0",
+    "langchain>=0.3.0",
+    "langchain-community>=0.3.0",
+    "openai>=1.0.0",
+    "python-dotenv>=1.0.0",
+
+    # RAG / Knowledge Base (Qdrant)
+    "qdrant-client>=1.9.0",
+    "sentence-transformers>=2.2.0",
+
+    # Pydantic
+    "pydantic>=2.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ipython",
+    "jupyter",
+]
+cnn = [
+    "tensorflow>=2.8.0",
+    "scikit-learn>=1.0.0",
+]
+
+[tool.uv]
+dev-dependencies = ["ipython"]
+package = false
+
+# ============================================================
+#  🚀  TimeSyncDiag - 启动方式
+# ============================================================
+#
+#  ── 首次安装依赖 ──
+#    uv sync
+#
+#  ── 启动后端 API 服务 ──
+#    uv run python fastapi/run.py              # 开发模式（热重载）
+#    uv run uvicorn main:app --host 0.0.0.0 --port 8000
+#      (需要在 fastapi/ 目录下执行)
+#
+#  ── 启动 Kafka 生产者（发送模拟数据）──
+#    uv run python producer.py                 # 启动传感器+检测数据生产者
+#    uv run python fastapi/logic/producers/producer.py
+#
+#  ── 启动 Kafka 消费者（消费→写入数据库）──
+#    uv run python consumer.py                 # 启动传感器+检测数据消费者
+#    uv run python fastapi/logic/consumers/consumer.py
+#
+#  ── 导入产线离线 CSV 数据（已存在的检测/模头/设备数据）──
+#    uv run python scripts/import_offline_data.py
+#
+#  ── 启动 CNN 图像分类 API（port 8001，CNN 异常诊断）──
+#    uv sync --group cnn          # 首次安装 CNN 依赖（tensorflow）
+#    uv run python cnn_image_classification/cnnfast.py
+#
+#  ── CNN 模型训练（可选）──
+#    uv run python cnn_image_classification/cnn_image_classifier.py
+#
+#  ── 单图/批量预测工具（可选，独立运行不依赖 API）──
+#    uv run python cnn_image_classification/predict_image.py
+#    uv run python cnn_image_classification/random_test.py
+#
+# ============================================================
