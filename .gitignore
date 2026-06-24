@@ -46,3 +46,6 @@ Thumbs.db
 # ── 日志 ──
 *.log
 pandasai.log
+
+# Qdrant vector database (auto-generated)
+fastapi/LLMAgent/KnowledgeDb/qdrant_db/
