@@ -6,13 +6,16 @@
 
 ```
 cnn_image_classification/
-├── cnn_image_classifier.py  # 模型训练脚本
-├── predict_image.py          # 图像预测脚本
-├── best_resnet_model.keras   # 训练好的模型（自动生成）
-├── training_history.png      # 训练历史曲线（自动生成）
-├── evaluation_results.txt    # 模型评估结果（自动生成）
-├── requirements.txt          # 依赖项列表
-└── README.md                 # 项目说明文档
+├── cnn_image_classifier.py       # 模型训练脚本
+├── cnnfast.py                     # FastAPI 服务 (port 8001)
+├── predict_image.py               # 图像预测脚本
+├── best_resnet_model.keras        # 训练好的模型（需下载，~128MB）
+├── training_history.png           # 训练历史曲线（自动生成）
+├── evaluation_results.txt         # 模型评估结果（自动生成）
+├── download_model.sh              # 模型下载脚本 (bash)
+├── download_model.py              # 模型下载脚本 (Python)
+├── requirements.txt               # 依赖项列表
+└── README.md                      # 项目说明文档
 ```
 
 ## 数据准备
@@ -44,6 +47,34 @@ imageData/
 ```bash
 pip install -r requirements.txt
 ```
+
+## 获取模型权重
+
+训练好的模型文件 `best_resnet_model.keras`（~128MB）因体积过大未包含在 git 仓库中。
+
+### 方式一：自动下载（推荐）
+
+```bash
+# Bash
+bash cnn_image_classification/download_model.sh
+
+# Python (跨平台)
+uv run python cnn_image_classification/download_model.py
+```
+
+### 方式二：GitHub Releases
+
+1. 访问 https://github.com/kingdol666/TimeSyncDiag/releases
+2. 下载 `best_resnet_model.keras`
+3. 放入 `cnn_image_classification/` 目录
+
+### 方式三：自行训练
+
+```bash
+uv run python cnn_image_classification/cnn_image_classifier.py
+```
+
+需要自行准备训练数据。
 
 ## 使用说明
 
