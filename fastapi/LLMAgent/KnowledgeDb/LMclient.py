@@ -5,21 +5,17 @@ from langchain.tools import tool
 from langchain_classic import hub
 from .kb import KnowledgeBase
 import os
-# ==========================================
-# 1. 基础配置：模型与 Embedding
-# ==========================================
 
-# A. 配置本地 LLM (LM Studio)
-# llm = ChatOpenAI(
-#     base_url="http://localhost:1234/v1",
-#     api_key="lm-studio",
-#     model="local-model",
-#     temperature=0.3
-# )
+# ── Qwen DashScope API 配置 ──────────────────────────
+# API Key 从环境变量读取，请确保 .env 中有 DASHSCOPE_API_KEY
+# cp .env.example .env  然后编辑填入你的 Key
+# ─────────────────────────────────────────────────────
+DASHSCOPE_API_KEY = os.getenv("DASHSCOPE_API_KEY", "")
+
 llm = ChatOpenAI(
     base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
-    api_key="sk-68e200187f05442db8492de5f65ba08a",
-    model="qwen3-vl-plus",  # Qwen 百炼模型名称
+    api_key=DASHSCOPE_API_KEY,
+    model="qwen3-vl-plus",
     temperature=0.7,
     max_tokens=4096
 )
