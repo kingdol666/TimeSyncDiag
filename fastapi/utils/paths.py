@@ -60,10 +60,23 @@ def get_config_dir() -> Path:
     return FASTAPI_DIR / "config"
 
 
-# ── 模型目录 ────────────────────────────────────────────
+# ── CNN 图像分类模块 ──────────────────────────────────────
+CNN_DIR = PROJECT_ROOT / "cnn_image_classification"
+
+
+def get_cnn_dir() -> Path:
+    """CNN 图像分类模块目录"""
+    return CNN_DIR
+
+
 def get_cnn_model_path() -> Path:
     """CNN 模型文件路径"""
-    return PROJECT_ROOT / "cnn_image_classification" / "best_resnet_model.keras"
+    return CNN_DIR / "best_resnet_model.keras"
+
+
+def get_cnn_api_script() -> Path:
+    """CNN API 启动脚本路径"""
+    return CNN_DIR / "cnnfast.py"
 
 
 def get_images_test_path(filename: str = "1.png") -> Path:

@@ -53,3 +53,6 @@ fastapi/LLMAgent/KnowledgeDb/qdrant_db/
 # Large files (use LFS or download from GitHub Releases)
 cnn_image_classification/best_resnet_model.keras
 cnn_image_classification/*.png
+cnn_image_classification/.venv/
+cnn_image_classification/.venv/
+cnn_image_classification/.venv/

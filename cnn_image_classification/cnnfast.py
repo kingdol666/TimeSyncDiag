@@ -244,9 +244,26 @@ async def predict_batch(files: list[UploadFile] = File(...)):
 
 if __name__ == "__main__":
     import uvicorn
+    import yaml
+    
+    # 从项目根目录的 config.yml 加载配置
+    config_path = Path(__file__).parent.parent / "config.yml"
+    cnn_host = "0.0.0.0"
+    cnn_port = 8001
+    
+    if config_path.exists():
+        with open(config_path, 'r', encoding='utf-8') as f:
+            cfg = yaml.safe_load(f)
+            cnn_cfg = cfg.get('cnn_api', {})
+            cnn_host = cnn_cfg.get('host', cnn_host)
+            cnn_port = cnn_cfg.get('port', cnn_port)
+    
+    # 环境变量优先（支持主进程传入）
+    cnn_port = int(os.getenv("CNN_PORT", str(cnn_port)))
+    
     uvicorn.run(
         app,
-        host="0.0.0.0",
-        port=8001,
+        host=cnn_host,
+        port=cnn_port,
         log_level="info"
     )

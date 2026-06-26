@@ -1,14 +1,20 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+import subprocess
 import threading
 import logging
+import signal
 import sys
 import os
+
+# 加载配置
+from config.config_loader import config
 
 # 导入全局状态管理
 import state
 from state import initialize_components, cleanup_components
+from utils.paths import get_cnn_api_script
 
 # 配置日志
 logging.basicConfig(
@@ -16,6 +22,24 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+
+def signal_handler(signum, frame):
+    """信号处理器：确保子进程被正确清理"""
+    logger.info(f"收到信号 {signum}，正在清理...")
+    sys.exit(0)
+
+
+# 注册信号处理器
+signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGTERM, signal_handler)
+if sys.platform == 'win32':
+    # Windows 特有的信号
+    try:
+        signal.signal(signal.SIGBREAK, signal_handler)
+    except (ValueError, AttributeError):
+        pass
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -30,9 +54,9 @@ async def lifespan(app: FastAPI):
             return
         
         # 启动组件 - 从state模块获取最新的组件引用
-        state.sensor_producer.start()
+        # state.sensor_producer.start()
+         # state.data_pipeline.start()
         state.detection_producer.start()
-        state.data_pipeline.start()
         state.detection_data_pipeline.start()
         state.thickness_map_pipeline.start()
         
@@ -113,8 +137,8 @@ if __name__ == "__main__":
     import uvicorn
     uvicorn.run(
         "main:app",
-        host="0.0.0.0",
-        port=8000,
+        host=config.api.get('host', '0.0.0.0'),
+        port=config.api.get('port', 8000),
         reload=True,
         log_level="info"
     )

@@ -5,13 +5,19 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras.preprocessing import image
 import matplotlib.pyplot as plt
+from pathlib import Path
 
 # 设置中文字体
 plt.rcParams['font.sans-serif'] = ['SimHei']  # 使用黑体
 plt.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
 
 # 模型路径
-MODEL_PATH = r'e:\codes\wanweiData2\cnn_image_classification\best_resnet_model.keras'
+# 获取当前文件所在目录
+BASE_DIR = Path(__file__).parent
+
+# 模型路径（使用相对路径）
+MODEL_PATH = BASE_DIR / 'best_resnet_model.keras'
+
 
 # 图像尺寸
 IMG_HEIGHT, IMG_WIDTH = 224, 224

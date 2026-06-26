@@ -50,13 +50,13 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = [
-    "ipython",
-    "jupyter",
-]
+dev = ["ipython", "jupyter"]
 cnn = [
+    # CNN 图像分类子模块依赖
+    # 安装方式: uv sync --optional cnn
     "tensorflow>=2.8.0",
     "scikit-learn>=1.0.0",
+    "pyyaml>=6.0",
 ]
 
 [tool.uv]

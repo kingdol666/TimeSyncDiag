@@ -1,0 +1,48 @@
+# ============================================
+# TimeSyncDiag 时序对齐图像诊断系统 - 配置文件
+# ============================================
+
+# ── 数据库配置 ──
+database:
+  host: localhost
+  port: 5432
+  name: tsdb
+  user: user
+  password: "123456"
+
+# ── MinIO 配置 ──
+minio:
+  endpoint: "127.0.0.1:9000"
+  access_key: minioadmin
+  secret_key: "Minio@123456"
+  bucket_name: test-bucket
+  secure: false
+
+# ── Kafka 配置 ──
+kafka:
+  bootstrap_servers: "localhost:9092"
+  sensor_topic: sensor_data
+  detection_topic: detection_data
+
+# ── API 配置 ──
+api:
+  host: "0.0.0.0"
+  port: 8002
+
+# ── CNN API 配置 ──
+cnn_api:
+  host: "0.0.0.0"
+  port: 8003
+  script: cnnfast.py
+  project_dir: cnn_image_classification
+
+# ── LLM 配置 ──
+llm:
+  qwen_model_name: qwen3-vl-plus
+  qwen_base_url: https://dashscope.aliyuncs.com/compatible-mode/v1
+  qwen_temperature: 1.0
+  qwen_max_tokens: 5000
+
+# ── WebSocket 配置 ──
+websocket:
+  heartbeat_interval: 30

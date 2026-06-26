@@ -1,0 +1,18 @@
+[project]
+name = "cnn-image-classification"
+version = "0.1.0"
+description = "CNN 图像分类子模块 - 膜厚云图异常检测"
+requires-python = ">=3.11"
+dependencies = [
+    "tensorflow>=2.8.0",
+    "scikit-learn>=1.0.0",
+    "pyyaml>=6.0",
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    "python-multipart>=0.0.6",
+    "pillow>=10.0.0",
+    "numpy>=1.24.0",
+]
+
+[tool.uv]
+package = false

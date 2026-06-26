@@ -11,8 +11,14 @@ from PIL import Image
 os.environ['NO_PROXY'] = '*'
 os.environ['no_proxy'] = '*'
 
-# API 基础 URL
-CNN_API_BASE_URL = "http://localhost:8001"
+# 从配置加载 CNN API 地址
+from config.config_loader import config
+
+_cnn_host = config.cnn_api.get('host', '0.0.0.0')
+_cnn_port = config.cnn_api.get('port', 8003)
+# 将 0.0.0.0 替换为 localhost 用于客户端连接
+_cnn_connect_host = 'localhost' if _cnn_host == '0.0.0.0' else _cnn_host
+CNN_API_BASE_URL = f"http://{_cnn_connect_host}:{_cnn_port}"
 
 class PredictionResponse(BaseModel):
     prediction: int
