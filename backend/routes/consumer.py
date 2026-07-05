@@ -10,7 +10,7 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 # 导入全局状态模块，避免在 lifespan 初始化前捕获 None
-import state
+import backend.state as state
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

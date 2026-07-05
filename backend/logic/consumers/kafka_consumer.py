@@ -6,7 +6,7 @@ import sys
 from kafka import KafkaConsumer
 from kafka.errors import KafkaError
 
-from config.config_loader import config as app_config
+from backend.config.config_loader import config as app_config
 
 # 配置日志
 logging.basicConfig(level=logging.INFO)

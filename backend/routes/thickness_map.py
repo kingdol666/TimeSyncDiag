@@ -9,7 +9,7 @@ import os
 
 from sqlalchemy.orm import defer, load_only
 
-import state
+import backend.state as state
 
 
 logger = logging.getLogger(__name__)
@@ -81,7 +81,7 @@ def stop_pipeline() -> Dict[str, Any]:
 async def get_latest_map():
     """获取最新膜厚云图"""
     try:
-        from logic.models.models import ThicknessMap
+        from backend.logic.models.models import ThicknessMap
         
         if not state.db_connection or not state.db_connection.connected:
             return MapResponse(
@@ -164,7 +164,7 @@ async def get_latest_map():
 async def get_map_by_time_range(request: TimeRangeRequest):
     """根据时间范围获取膜厚云图"""
     try:
-        from logic.models.models import ThicknessMap
+        from backend.logic.models.models import ThicknessMap
         
         if not state.db_connection or not state.db_connection.connected:
             return MapResponse(

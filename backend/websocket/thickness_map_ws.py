@@ -3,10 +3,10 @@ from typing import List, Dict, Any
 import logging
 import asyncio
 import base64
-from logic.models.models import ThicknessMap
-from logic.models.mini_connection import MinioConnector
-import state
-from config.config_loader import config
+from backend.logic.models.models import ThicknessMap
+from backend.logic.models.mini_connection import MinioConnector
+import backend.state as state
+from backend.config.config_loader import config
 
 # 配置日志
 logger = logging.getLogger(__name__)

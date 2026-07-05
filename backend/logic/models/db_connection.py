@@ -4,7 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 
 # 使用绝对导入，避免与 state.py 的 path 注入方式产生相对导入层级冲突
-from config.config_loader import config
+from backend.config.config_loader import config
 
 # 配置日志
 logging.basicConfig(level=logging.INFO)

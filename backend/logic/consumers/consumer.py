@@ -18,7 +18,7 @@ from .kafka_consumer import KafkaMessageConsumer
 from ..processors.data_processor import DataProcessor, DetectionDataProcessor
 from ..processors.scheduler import KafkaToDatabaseScheduler
 from ..models.models import SensorData, DetectionDeviceData
-from config.config_loader import config as app_config
+from backend.config.config_loader import config as app_config
 
 
 def build_pipeline_config(topic: str, group_id: str) -> dict:

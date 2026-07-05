@@ -12,7 +12,7 @@ os.environ['NO_PROXY'] = '*'
 os.environ['no_proxy'] = '*'
 
 # 从配置加载 CNN API 地址
-from config.config_loader import config
+from backend.config.config_loader import config
 
 _cnn_host = config.cnn_api.host
 _cnn_port = config.cnn_api.port

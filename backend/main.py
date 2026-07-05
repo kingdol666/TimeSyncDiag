@@ -9,12 +9,12 @@ import sys
 import os
 
 # 加载配置
-from config.config_loader import config
+from backend.config.config_loader import config
 
 # 导入全局状态管理
-import state
-from state import initialize_components, cleanup_components
-from utils.paths import get_cnn_api_script
+import backend.state as state
+from backend.state import initialize_components, cleanup_components
+from backend.utils.paths import get_cnn_api_script
 
 # 配置日志
 logging.basicConfig(
@@ -128,7 +128,7 @@ async def lifespan(app: FastAPI):
         state.thickness_map_pipeline.start()
         
         # 导入WebSocket管理器并启动后台更新任务
-        from websocket.thickness_map_ws import thickness_map_ws_manager
+        from backend.websocket.thickness_map_ws import thickness_map_ws_manager
         thickness_map_ws_manager.start_background_task()
         
         logger.info("所有组件已成功启动")
@@ -144,7 +144,7 @@ async def lifespan(app: FastAPI):
     
     try:
         # 停止WebSocket后台更新任务
-        from websocket.thickness_map_ws import thickness_map_ws_manager
+        from backend.websocket.thickness_map_ws import thickness_map_ws_manager
         thickness_map_ws_manager.stop_background_task()
         
         # 停止 CNN API 服务
@@ -175,13 +175,13 @@ app.add_middleware(
 )
 
 # 导入路由
-from routes.producer import router as producer_router
-from routes.consumer import router as consumer_router
-from routes.thickness_map import router as thickness_map_router
-from routes.vl import router as vl_router
-from routes.thickness_map_ws import router as thickness_map_ws_router
-from routes.image_analysis import router as image_analysis_router
-from routes.config import router as config_router
+from backend.routes.producer import router as producer_router
+from backend.routes.consumer import router as consumer_router
+from backend.routes.thickness_map import router as thickness_map_router
+from backend.routes.vl import router as vl_router
+from backend.routes.thickness_map_ws import router as thickness_map_ws_router
+from backend.routes.image_analysis import router as image_analysis_router
+from backend.routes.config import router as config_router
 
 # 注册路由
 app.include_router(producer_router, prefix="/api/producer", tags=["生产者管理"])

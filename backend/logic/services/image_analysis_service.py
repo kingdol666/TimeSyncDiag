@@ -9,14 +9,11 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, desc
 from PIL import Image as PILImage
-import state
+import backend.state as state
 
-# 添加logic目录到Python路径，以便使用绝对导入
-sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-
-from logic.models.models import ImageAnalysisResult, ThicknessMap
-from logic.models.db_connection import DatabaseConnection
-from logic.models.schemas import (
+from backend.logic.models.models import ImageAnalysisResult, ThicknessMap
+from backend.logic.models.db_connection import DatabaseConnection
+from backend.logic.models.schemas import (
     ThicknessMapImageResponse,
     ImageAnalysisWithImagesListResponse,
     ImageAnalysisResultResponse
@@ -27,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 # 添加RAG知识库支持
 try:
-    from LLMAgent.KnowledgeDb.kb import KnowledgeBase
+    from backend.LLMAgent.KnowledgeDb.kb import KnowledgeBase
     RAG_AVAILABLE = True
 except ImportError:
     RAG_AVAILABLE = False

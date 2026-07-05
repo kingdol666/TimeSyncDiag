@@ -27,6 +27,9 @@ uv.lock
 # ── 本地配置文件（敏感信息） ──
 config.yml
 
+# ── 运行时状态文件 ──
+backend/config/producer_state.json
+
 # ── 数据文件 ──
 backend/data/realtime/
 backend/data/motouData/

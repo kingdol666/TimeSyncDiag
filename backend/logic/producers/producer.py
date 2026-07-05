@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 # ── 路径引用（注意：此文件在 logic/producers/，使用相对路径访问 utils/）──
 # PROJECT_ROOT = fastapi/ 的父目录 = TimeSyncDiag
 from ..utils.paths import PROJECT_ROOT, get_realtime_dir
-from config.config_loader import config
+from backend.config.config_loader import config
 
 class SensorDataProducer:
     def __init__(self, bootstrap_servers=None, topic=None, interval=None):

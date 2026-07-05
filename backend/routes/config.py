@@ -6,8 +6,8 @@ from fastapi import APIRouter, HTTPException, Body
 from pydantic import BaseModel, Field
 from typing import Any, Dict, List
 
-from config.config_loader import config
-from config.schemas import AppConfig
+from backend.config.config_loader import config
+from backend.config.schemas import AppConfig
 
 
 router = APIRouter(tags=["配置管理"])

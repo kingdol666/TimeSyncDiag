@@ -13,9 +13,9 @@ import uuid
 # 添加LLMAgent目录到Python路径，以便使用绝对导入
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
-from LLMAgent.KnowledgeDb.LMclient import search_knowledge_base 
-from logic.models.db_connection import DatabaseConnection
-from logic.services.image_analysis_service import ImageAnalysisService
+from backend.LLMAgent.KnowledgeDb.LMclient import search_knowledge_base 
+from backend.logic.models.db_connection import DatabaseConnection
+from backend.logic.services.image_analysis_service import ImageAnalysisService
 # 加载环境变量 - 优先使用项目根目录 .env，找不到再使用 LLMAgent 目录下的 .env
 project_env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), ".env")
 agent_env_path = os.path.join(os.path.dirname(__file__), ".env")
@@ -669,7 +669,7 @@ class QwenVLAgent:
         }
         
         # 开始诊断，停止WebSocket消息推送
-        from websocket.thickness_map_ws import thickness_map_ws_manager
+        from backend.websocket.thickness_map_ws import thickness_map_ws_manager
         thickness_map_ws_manager.start_diagnosis()
         
         try:

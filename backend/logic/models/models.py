@@ -162,7 +162,7 @@ class ThicknessMap(Base):
         avg_thickness = sum(flat_data) / data_points_count if flat_data else 0
         
         # 上传图片到MinIO
-        import state
+        import backend.state as state
         import tempfile
         import os
         

@@ -21,10 +21,10 @@ import tempfile
 from ..models.models import DetectionDeviceData, ThicknessMap, MotouData, OtherData
 from ..models.db_connection import DatabaseConnection
 from ..services.remote_template import CNNImageClassificationService
-import state
+import backend.state as state
 import uuid
 from ..models.mini_connection import MinioConnector
-from config.config_loader import config
+from backend.config.config_loader import config
 
 # 配置日志
 logging.basicConfig(level=logging.INFO)

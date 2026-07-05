@@ -9,7 +9,7 @@ from typing import Dict, Any
 # 导入自定义模块
 from ..models.db_connection import DatabaseConnection
 from ..processors.thickness_map_processor import ThicknessMapProcessor
-from config.config_loader import config
+from backend.config.config_loader import config
 
 # 配置日志
 logging.basicConfig(

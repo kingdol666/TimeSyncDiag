@@ -1,5 +1,5 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-from websocket.thickness_map_ws import thickness_map_ws_manager
+from backend.websocket.thickness_map_ws import thickness_map_ws_manager
 import logging
 
 # 配置日志

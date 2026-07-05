@@ -5,7 +5,7 @@ from httpx import Request
 from pydantic import BaseModel
 import os
 import tempfile
-import state
+import backend.state as state
 
 router = APIRouter(tags=["视觉诊断 Agent"])
 

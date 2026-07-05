@@ -3,8 +3,8 @@ from typing import List, Optional
 from pydantic import BaseModel, Field
 import logging
 
-import state
-from logic.models.schemas import ImageAnalysisWithImagesListResponse, ThicknessMapImageResponse, ImageAnalysisResultResponse, UpdateCommentRequest
+import backend.state as state
+from backend.logic.models.schemas import ImageAnalysisWithImagesListResponse, ThicknessMapImageResponse, ImageAnalysisResultResponse, UpdateCommentRequest
 
 logger = logging.getLogger(__name__)
 
