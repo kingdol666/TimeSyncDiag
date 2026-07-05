@@ -60,7 +60,11 @@ cnn = [
 ]
 
 [tool.uv]
-dev-dependencies = ["ipython"]
+dev-dependencies = [
+    "ipython",
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+]
 package = false
 
 # ============================================================
