@@ -71,17 +71,13 @@ package = false
 #    uv sync
 #
 #  ── 启动后端 API 服务 ──
-#    uv run python fastapi/run.py              # 开发模式（热重载）
-#    uv run uvicorn main:app --host 0.0.0.0 --port 8000
-#      (需要在 fastapi/ 目录下执行)
+#    uv run python backend/run.py              # 开发模式（热重载），从项目根目录执行
 #
 #  ── 启动 Kafka 生产者（发送模拟数据）──
-#    uv run python producer.py                 # 启动传感器+检测数据生产者
-#    uv run python fastapi/logic/producers/producer.py
+#    uv run python backend/logic/producers/producer.py
 #
 #  ── 启动 Kafka 消费者（消费→写入数据库）──
-#    uv run python consumer.py                 # 启动传感器+检测数据消费者
-#    uv run python fastapi/logic/consumers/consumer.py
+#    uv run python backend/logic/consumers/consumer.py
 #
 #  ── 导入产线离线 CSV 数据（已存在的检测/模头/设备数据）──
 #    uv run python scripts/import_offline_data.py

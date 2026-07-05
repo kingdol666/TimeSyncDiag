@@ -20,9 +20,9 @@ from sqlalchemy import text
 BACKEND_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(BACKEND_DIR))
 
-from fastapi.logic.models.db_connection import DatabaseConnection
-from fastapi.logic.models.models import DetectionDeviceData
-from fastapi.logic.utils.paths import get_realtime_dir, get_motou_data_dir, get_other_data_dir
+from backend.logic.models.db_connection import DatabaseConnection
+from backend.logic.models.models import DetectionDeviceData
+from backend.logic.utils.paths import get_realtime_dir, get_motou_data_dir, get_other_data_dir
 
 # CSV 数据文件夹（从统一路径管理读取）
 REALTIME_DIR = get_realtime_dir()
@@ -110,7 +110,7 @@ def import_motou_data(db_conn):
     """
     导入 motouData/ 下的 CSV 到 motou_data 表。
     """
-    from fastapi.logic.models.models import MotouData
+    from backend.logic.models.models import MotouData
 
     data_dir = get_motou_data_dir()
     csv_files = sorted(data_dir.glob("*.csv"))
@@ -125,7 +125,7 @@ def import_other_data(db_conn):
     """
     导入 otherData/ 下的 CSV 到 other_data 表。
     """
-    from fastapi.logic.models.models import OtherData
+    from backend.logic.models.models import OtherData
 
     data_dir = get_other_data_dir()
     csv_files = sorted(data_dir.glob("*.csv"))

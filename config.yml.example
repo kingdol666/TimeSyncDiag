@@ -1,0 +1,68 @@
+database:
+  host: localhost
+  port: 5432
+  name: tsdb
+  user: user
+  password: '123456'
+  pool_size: 10
+  max_overflow: 20
+  pool_recycle: 3600
+minio:
+  endpoint: 127.0.0.1:9000
+  access_key: minioadmin
+  secret_key: Minio@123456
+  bucket_name: test-bucket
+  secure: false
+kafka:
+  bootstrap_servers: localhost:9092
+  sensor_topic: sensor_data
+  detection_topic: detection_data
+  sensor_producer_interval: 1.0
+  detection_producer_interval: 5.0
+  consumer_poll_timeout_ms: 1000
+api:
+  host: 0.0.0.0
+  port: 8002
+cnn_api:
+  host: 0.0.0.0
+  port: 8003
+  script: cnnfast.py
+  project_dir: cnn_image_classification
+thickness_map:
+  target_thickness: 0.045
+  thickness_range: 0.005
+  record_count: 40
+  pipeline_interval: 20
+  mask_preserve_rows: 4
+  reduce_mask_ratio: 0.1
+  dpi: 600
+  figsize:
+  - 10.0
+  - 6.0
+  combined_figsize:
+  - 16.0
+  - 16.0
+cnn_diagnosis:
+  enabled: true
+  confidence_threshold: 0.5
+  fallback_on_error: true
+  timeout: 30.0
+llm:
+  model_name: qwen3-vl-plus
+  base_url: https://dashscope.aliyuncs.com/compatible-mode/v1
+  api_key_env: DASHSCOPE_API_KEY
+  temperature: 1.0
+  max_tokens: 5000
+  timeout: 120.0
+  use_rag: true
+  rag_top_k: 3
+  rag_query_max_length: 500
+  detect_agent_enabled: true
+  process_agent_enabled: true
+  decision_agent_enabled: true
+websocket:
+  update_interval: 10
+  heartbeat_interval: 30
+system:
+  timezone: Asia/Shanghai
+  log_level: INFO

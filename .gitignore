@@ -24,10 +24,13 @@ uv.lock
 .env.local
 .env.*.local
 
+# ── 本地配置文件（敏感信息） ──
+config.yml
+
 # ── 数据文件 ──
-fastapi/data/realtime/
-fastapi/data/motouData/
-fastapi/data/otherData/
+backend/data/realtime/
+backend/data/motouData/
+backend/data/otherData/
 
 # ── IDE ──
 .idea/
@@ -48,7 +51,7 @@ Thumbs.db
 pandasai.log
 
 # Qdrant vector database (auto-generated)
-fastapi/LLMAgent/KnowledgeDb/qdrant_db/
+backend/LLMAgent/KnowledgeDb/qdrant_db/
 
 # Large files (use LFS or download from GitHub Releases)
 cnn_image_classification/best_resnet_model.keras
