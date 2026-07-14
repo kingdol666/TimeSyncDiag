@@ -324,7 +324,7 @@ async def test_cnn_service():
         
         # 4. 测试从文件预测
         print("4. 测试从文件预测...")
-        test_image_path = r"d:\codes\PythonCodes\Test\TimeSyncDiag\fastapi\data\images\1.png"
+        test_image_path = r"d:\codes\PythonCodes\Test\TimeSyncDiag\backend\data\images\1.png"
         try:
             result = await service.predict_from_file(test_image_path)
             print(f"   预测类别: {result.prediction}")
@@ -339,8 +339,8 @@ async def test_cnn_service():
         # 5. 测试批量预测
         print("5. 测试批量预测...")
         test_images = [
-            r"d:\codes\PythonCodes\Test\TimeSyncDiag\fastapi\data\images\1.png",
-            r"d:\codes\PythonCodes\Test\TimeSyncDiag\fastapi\data\images\2.png"
+            r"d:\codes\PythonCodes\Test\TimeSyncDiag\backend\data\images\1.png",
+            r"d:\codes\PythonCodes\Test\TimeSyncDiag\backend\data\images\2.png"
         ]
         try:
             batch_result = await service.batch_predict_from_files(test_images)

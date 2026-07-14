@@ -9,7 +9,6 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, desc
 from PIL import Image as PILImage
-import backend.state as state
 
 from backend.logic.models.models import ImageAnalysisResult, ThicknessMap
 from backend.logic.models.db_connection import DatabaseConnection
@@ -718,6 +717,8 @@ class ImageAnalysisService:
                 }
             如果查询失败返回None
         """
+        import backend.state as state
+
         session = self.db_connection.get_session()
         try:
             # 查询ThicknessMap
@@ -910,6 +911,8 @@ class ImageAnalysisService:
         返回:
             bytes: 对象数据，失败返回None
         """
+        import backend.state as state
+
         try:
             if state.minio_connector is None:
                 logger.error("MinIO连接未初始化")

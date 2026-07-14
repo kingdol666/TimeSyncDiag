@@ -149,7 +149,7 @@ if __name__ == "__main__":
     minio_connector.create_bucket(BUCKET_NAME)
 
     # 3. 上传本地文件（示例：请替换为你的本地文件路径）
-    local_file_path = r"D:\codes\PythonCodes\Test\TimeSyncDiag\fastapi\data\images\1.png"  # Windows路径示例
+    local_file_path = r"D:\codes\PythonCodes\Test\TimeSyncDiag\backend\data\images\1.png"  # Windows路径示例
     # local_file_path = "/tmp/hello.txt"  # Linux/Mac路径示例
     minio_object_name = "test/1.png"  # MinIO中的对象名称（带目录）
     minio_connector.upload_file(BUCKET_NAME, minio_object_name, local_file_path)

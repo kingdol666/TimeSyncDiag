@@ -198,7 +198,6 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    lifespan(app)
     return {"status": "healthy"}
 
 # 导出应用实例

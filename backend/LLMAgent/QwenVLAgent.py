@@ -13,9 +13,22 @@ import uuid
 # 添加LLMAgent目录到Python路径，以便使用绝对导入
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
-from backend.LLMAgent.KnowledgeDb.LMclient import search_knowledge_base 
 from backend.logic.models.db_connection import DatabaseConnection
 from backend.logic.services.image_analysis_service import ImageAnalysisService
+
+# RAG knowledge base search (optional - gracefully degraded if Qdrant is unavailable)
+try:
+    from backend.LLMAgent.KnowledgeDb.kb import KnowledgeBase
+    _kb_instance = None
+    def search_knowledge_base(query: str, top_k: int = 3) -> str:
+        global _kb_instance
+        if _kb_instance is None:
+            _kb_instance = KnowledgeBase(collection_name="my_knowledge_base")
+        results = _kb_instance.search_knowledge(query, top_k=top_k)
+        return "\n\n".join([r["content"] for r in results])
+except Exception:
+    def search_knowledge_base(query: str, top_k: int = 3) -> str:
+        return "知识库检索不可用"
 # 加载环境变量 - 优先使用项目根目录 .env，找不到再使用 LLMAgent 目录下的 .env
 project_env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), ".env")
 agent_env_path = os.path.join(os.path.dirname(__file__), ".env")
@@ -726,12 +739,21 @@ class QwenVLAgent:
                         "message": f"开始执行: {node_name}"
                     }
                 
-                # 发送内容 (Token)
-                if chunk.content:
+                # 发送内容 (Token) - 处理 LangChain content 可能是 list 的情况
+                content = chunk.content
+                if isinstance(content, list):
+                    parts = []
+                    for block in content:
+                        if isinstance(block, dict) and "text" in block:
+                            parts.append(block["text"])
+                        elif isinstance(block, str):
+                            parts.append(block)
+                    content = "".join(parts)
+                if content:
                     yield {
                         "event": "stream_content",
                         "node": node_name,
-                        "content": chunk.content
+                        "content": content
                     }
             elif mode == "updates":
                 # 状态更新 (对应 return 语句执行后)
@@ -815,7 +837,7 @@ if __name__ == "__main__":
     agent = QwenVLAgent()
     
     # 设置图片路径和提问
-    image_path = "TimeSyncDiag/fastapi/LLMAgent/images/tt.png"  # 替换为你的图片路径
+    image_path = "TimeSyncDiag/backend/LLMAgent/images/tt.png"  # 替换为你的图片路径
     question = "请详细描述这张图片里的内容，并告诉我图片的色调是什么。"
     
     print("正在调用 Qwen-VL 模型...")

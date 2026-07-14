@@ -10,10 +10,10 @@ from pathlib import Path
 from typing import Union
 
 # ── 项目根目录 ──────────────────────────────────────────
-# 此文件位于 fastapi/utils/paths.py
-# 项目根目录 fastapi/ 向上 1 层 = TimeSyncDiag
-FASTAPI_DIR = Path(__file__).resolve().parent.parent
-PROJECT_ROOT = FASTAPI_DIR.parent  # TimeSyncDiag 项目根目录
+# 此文件位于 backend/utils/paths.py
+# 项目根目录 backend/ 向上 1 层 = TimeSyncDiag
+BACKEND_DIR = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = BACKEND_DIR.parent  # TimeSyncDiag 项目根目录
 
 
 def ensure_dir(path: Union[str, Path]) -> Path:
@@ -26,22 +26,22 @@ def ensure_dir(path: Union[str, Path]) -> Path:
 # ── 数据目录 ────────────────────────────────────────────
 def get_data_dir() -> Path:
     """数据根目录"""
-    return Path(os.getenv("DATA_DIR", str(PROJECT_ROOT / "fastapi" / "data")))
+    return Path(os.getenv("DATA_DIR", str(PROJECT_ROOT / "backend" / "data")))
 
 
 def get_realtime_dir() -> Path:
     """实时 CSV 数据目录（膜厚检测数据）"""
-    return Path(os.getenv("DETECTION_DATA_FOLDER", str(PROJECT_ROOT / "fastapi" / "data" / "realtime")))
+    return Path(os.getenv("DETECTION_DATA_FOLDER", str(PROJECT_ROOT / "backend" / "data" / "realtime")))
 
 
 def get_images_dir() -> Path:
     """测试图片目录"""
-    return Path(os.getenv("IMAGES_DIR", str(PROJECT_ROOT / "fastapi" / "data" / "images")))
+    return Path(os.getenv("IMAGES_DIR", str(PROJECT_ROOT / "backend" / "data" / "images")))
 
 
 def get_temp_dir() -> Path:
     """临时文件目录"""
-    return Path(os.getenv("TEMP_DIR", str(PROJECT_ROOT / "fastapi" / "data" / "temp")))
+    return Path(os.getenv("TEMP_DIR", str(PROJECT_ROOT / "backend" / "data" / "temp")))
 
 
 def get_motou_data_dir() -> Path:
@@ -57,7 +57,7 @@ def get_other_data_dir() -> Path:
 # ── 配置目录 ────────────────────────────────────────────
 def get_config_dir() -> Path:
     """配置文件目录"""
-    return FASTAPI_DIR / "config"
+    return BACKEND_DIR / "config"
 
 
 # ── CNN 图像分类模块 ──────────────────────────────────────
@@ -85,4 +85,4 @@ def get_images_test_path(filename: str = "1.png") -> Path:
 
 
 # ── CNN API 地址 ────────────────────────────────────────
-CNN_API_BASE_URL: str = os.getenv("CNN_API_BASE_URL", "http://localhost:8001")
+CNN_API_BASE_URL: str = os.getenv("CNN_API_BASE_URL", "http://localhost:8003")
