@@ -5,9 +5,11 @@ import time
 import threading
 import json
 
+from backend.config.config_loader import config as app_config
+
 # 配置日志
 logging.basicConfig(
-    level=logging.INFO,
+    level=getattr(logging, app_config.system.log_level, logging.INFO),
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)

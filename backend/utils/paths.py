@@ -85,4 +85,18 @@ def get_images_test_path(filename: str = "1.png") -> Path:
 
 
 # ── CNN API 地址 ────────────────────────────────────────
-CNN_API_BASE_URL: str = os.getenv("CNN_API_BASE_URL", "http://localhost:8003")
+def get_cnn_api_base_url() -> str:
+    """CNN API 基础 URL（从全局配置读取）"""
+    try:
+        from backend.config.config_loader import config as app_config
+        _port = app_config.cnn_api.port
+        _host = app_config.cnn_api.host
+        if _host == "0.0.0.0":
+            _host = "localhost"
+        return os.getenv("CNN_API_BASE_URL", f"http://{_host}:{_port}")
+    except Exception:
+        return os.getenv("CNN_API_BASE_URL", "http://localhost:8003")
+
+
+# 兼容性导出
+CNN_API_BASE_URL: str = get_cnn_api_base_url()

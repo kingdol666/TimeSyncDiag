@@ -18,7 +18,7 @@ from backend.utils.paths import get_cnn_api_script
 
 # 配置日志
 logging.basicConfig(
-    level=logging.INFO,
+    level=getattr(logging, config.system.log_level, logging.INFO),
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
@@ -182,6 +182,7 @@ from backend.routes.vl import router as vl_router
 from backend.routes.thickness_map_ws import router as thickness_map_ws_router
 from backend.routes.image_analysis import router as image_analysis_router
 from backend.routes.config import router as config_router
+from backend.routes.custom_analysis import router as custom_analysis_router
 
 # 注册路由
 app.include_router(producer_router, prefix="/api/producer", tags=["生产者管理"])
@@ -191,6 +192,7 @@ app.include_router(vl_router, prefix="/api/vl", tags=["视觉诊断 Agent"])
 app.include_router(image_analysis_router, prefix="/api/image-analysis", tags=["图片分析管理"])
 app.include_router(config_router, prefix="/api")  # 配置管理路由
 app.include_router(thickness_map_ws_router)  # 注册WebSocket路由
+app.include_router(custom_analysis_router, prefix="/api/custom-analysis", tags=["自定义时空对齐分析"])
 
 @app.get("/")
 async def root():

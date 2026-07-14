@@ -99,7 +99,7 @@ class ThicknessMapWebSocketManager:
                     if latest_map.map_image_path:
                         try:
                             map_image_bytes = state.minio_connector.download_file_to_bytes(
-                                "test-bucket", 
+                                state.BUCKET_NAME, 
                                 latest_map.map_image_path
                             )
                         except Exception as e:
@@ -109,7 +109,7 @@ class ThicknessMapWebSocketManager:
                     if latest_map.combined_image_path:
                         try:
                             combined_image_bytes = state.minio_connector.download_file_to_bytes(
-                                "test-bucket", 
+                                state.BUCKET_NAME, 
                                 latest_map.combined_image_path
                             )
                         except Exception as e:

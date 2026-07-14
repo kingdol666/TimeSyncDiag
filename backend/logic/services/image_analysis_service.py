@@ -18,7 +18,9 @@ from backend.logic.models.schemas import (
     ImageAnalysisResultResponse
 )
 
-logging.basicConfig(level=logging.INFO)
+from backend.config.config_loader import config as app_config
+
+logging.basicConfig(level=getattr(logging, app_config.system.log_level, logging.INFO))
 logger = logging.getLogger(__name__)
 
 # 添加RAG知识库支持
@@ -739,7 +741,7 @@ class ImageAnalysisService:
                     with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as temp_file:
                         temp_file_path = temp_file.name
                     
-                    if state.minio_connector.download_file("test-bucket", thickness_map.combined_image_path, temp_file_path):
+                    if state.minio_connector.download_file(state.BUCKET_NAME, thickness_map.combined_image_path, temp_file_path):
                         with open(temp_file_path, 'rb') as f:
                             combined_image_bytes = f.read()
                         combined_image_base64 = base64.b64encode(combined_image_bytes).decode('utf-8')
@@ -752,7 +754,7 @@ class ImageAnalysisService:
                     with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as temp_file:
                         temp_file_path = temp_file.name
                     
-                    if state.minio_connector.download_file("test-bucket", thickness_map.map_image_path, temp_file_path):
+                    if state.minio_connector.download_file(state.BUCKET_NAME, thickness_map.map_image_path, temp_file_path):
                         with open(temp_file_path, 'rb') as f:
                             combined_image_bytes = f.read()
                         combined_image_base64 = base64.b64encode(combined_image_bytes).decode('utf-8')
@@ -919,7 +921,7 @@ class ImageAnalysisService:
                 return None
             
             # 从MinIO下载文件到内存
-            data = state.minio_connector.download_file_to_bytes("test-bucket", object_name)
+            data = state.minio_connector.download_file_to_bytes(state.BUCKET_NAME, object_name)
             if data:
                 logger.info(f"成功从MinIO下载对象: {object_name}")
             return data

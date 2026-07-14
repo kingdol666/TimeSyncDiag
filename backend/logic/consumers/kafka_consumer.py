@@ -9,7 +9,7 @@ from kafka.errors import KafkaError
 from backend.config.config_loader import config as app_config
 
 # 配置日志
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=getattr(logging, app_config.system.log_level, logging.INFO))
 logger = logging.getLogger(__name__)
 
 class KafkaMessageConsumer:

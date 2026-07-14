@@ -4,6 +4,9 @@ from sqlalchemy.orm import relationship
 from .db_connection import Base
 import pytz
 import uuid
+import logging
+
+logger = logging.getLogger(__name__)
 
 class SensorData(Base):
     """
@@ -181,7 +184,7 @@ class ThicknessMap(Base):
                     temp_file_path = temp_file.name
                 
                 object_name = f"thickness_maps/{thickness_map_uuid}/map_image.png"
-                if state.minio_connector.upload_file("test-bucket", object_name, temp_file_path):
+                if state.minio_connector.upload_file(state.BUCKET_NAME, object_name, temp_file_path):
                     map_image_path = object_name
                 os.unlink(temp_file_path)
             
@@ -192,7 +195,7 @@ class ThicknessMap(Base):
                     temp_file_path = temp_file.name
                 
                 object_name = f"thickness_maps/{thickness_map_uuid}/pure_map_image.png"
-                if state.minio_connector.upload_file("test-bucket", object_name, temp_file_path):
+                if state.minio_connector.upload_file(state.BUCKET_NAME, object_name, temp_file_path):
                     pure_map_image_path = object_name
                 os.unlink(temp_file_path)
             
@@ -203,12 +206,12 @@ class ThicknessMap(Base):
                     temp_file_path = temp_file.name
                 
                 object_name = f"thickness_maps/{thickness_map_uuid}/combined_image.png"
-                if state.minio_connector.upload_file("test-bucket", object_name, temp_file_path):
+                if state.minio_connector.upload_file(state.BUCKET_NAME, object_name, temp_file_path):
                     combined_image_path = object_name
                 os.unlink(temp_file_path)
             
         except Exception as e:
-            print(f"上传图片到MinIO失败: {e}")
+            logger.error(f"上传图片到MinIO失败: {e}")
         
         # 创建数据对象
         data = cls(

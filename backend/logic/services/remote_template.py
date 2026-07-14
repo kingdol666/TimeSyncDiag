@@ -1,11 +1,14 @@
 import os
 import httpx
+import logging
 from typing import Optional, List
 from pydantic import BaseModel
 from pathlib import Path
 import io
 from PIL.Image import Image as PILImage
 from PIL import Image
+
+logger = logging.getLogger(__name__)
 
 # 禁用代理
 os.environ['NO_PROXY'] = '*'
@@ -292,72 +295,74 @@ async def test_cnn_service():
     """
     测试CNN图像分类服务
     """
-    print("=== 开始测试CNN图像分类服务 ===\n")
+    from backend.logic.utils.paths import get_images_dir
+
+    logger.info("=== 开始测试CNN图像分类服务 ===")
     
     service = CNNImageClassificationService()
     
     try:
         # 1. 健康检查
-        print("1. 健康检查...")
+        logger.info("1. 健康检查...")
         health = await service.health_check()
-        print(f"   状态: {health.status}")
-        print(f"   模型已加载: {health.model_loaded}\n")
+        logger.info(f"   状态: {health.status}")
+        logger.info(f"   模型已加载: {health.model_loaded}")
         
         # 2. 获取根路径信息
-        print("2. 获取服务信息...")
+        logger.info("2. 获取服务信息...")
         root_info = await service.get_root_info()
-        print(f"   消息: {root_info.message}")
-        print(f"   TensorFlow版本: {root_info.tensorflow_version}")
-        print(f"   模型路径: {root_info.model_path}\n")
+        logger.info(f"   消息: {root_info.message}")
+        logger.info(f"   TensorFlow版本: {root_info.tensorflow_version}")
+        logger.info(f"   模型路径: {root_info.model_path}")
         
         # 3. 获取模型信息
-        print("3. 获取模型信息...")
+        logger.info("3. 获取模型信息...")
         try:
             model_info = await service.get_model_info()
-            print(f"   模型路径: {model_info.model_path}")
-            print(f"   输入形状: {model_info.input_shape}")
-            print(f"   输出形状: {model_info.output_shape}")
-            print(f"   总参数: {model_info.total_params}")
-            print(f"   图像尺寸: {model_info.image_size}\n")
+            logger.info(f"   模型路径: {model_info.model_path}")
+            logger.info(f"   输入形状: {model_info.input_shape}")
+            logger.info(f"   输出形状: {model_info.output_shape}")
+            logger.info(f"   总参数: {model_info.total_params}")
+            logger.info(f"   图像尺寸: {model_info.image_size}")
         except Exception as e:
-            print(f"   获取模型信息失败: {str(e)}\n")
+            logger.error(f"   获取模型信息失败: {str(e)}")
         
         # 4. 测试从文件预测
-        print("4. 测试从文件预测...")
-        test_image_path = r"d:\codes\PythonCodes\Test\TimeSyncDiag\backend\data\images\1.png"
+        logger.info("4. 测试从文件预测...")
+        images_dir = get_images_dir()
+        test_image_path = str(images_dir / "1.png")
         try:
             result = await service.predict_from_file(test_image_path)
-            print(f"   预测类别: {result.prediction}")
-            print(f"   置信度: {result.confidence}")
-            print(f"   标签: {result.label}")
-            print(f"   消息: {result.message}\n")
+            logger.info(f"   预测类别: {result.prediction}")
+            logger.info(f"   置信度: {result.confidence}")
+            logger.info(f"   标签: {result.label}")
+            logger.info(f"   消息: {result.message}")
         except FileNotFoundError:
-            print(f"   测试图片文件不存在: {test_image_path}\n")
+            logger.warning(f"   测试图片文件不存在: {test_image_path}")
         except Exception as e:
-            print(f"   预测失败: {str(e)}\n")
+            logger.error(f"   预测失败: {str(e)}")
         
         # 5. 测试批量预测
-        print("5. 测试批量预测...")
+        logger.info("5. 测试批量预测...")
         test_images = [
-            r"d:\codes\PythonCodes\Test\TimeSyncDiag\backend\data\images\1.png",
-            r"d:\codes\PythonCodes\Test\TimeSyncDiag\backend\data\images\2.png"
+            str(images_dir / "1.png"),
+            str(images_dir / "2.png")
         ]
         try:
             batch_result = await service.batch_predict_from_files(test_images)
-            print(f"   总数: {batch_result.total}")
-            print(f"   成功: {batch_result.success}")
+            logger.info(f"   总数: {batch_result.total}")
+            logger.info(f"   成功: {batch_result.success}")
             for idx, res in enumerate(batch_result.results):
-                print(f"   结果 {idx + 1}:")
+                logger.info(f"   结果 {idx + 1}:")
                 if res.error:
-                    print(f"      错误: {res.error}")
+                    logger.info(f"      错误: {res.error}")
                 else:
-                    print(f"      文件名: {res.filename}")
-                    print(f"      预测: {res.label} (置信度: {res.confidence})")
-            print()
+                    logger.info(f"      文件名: {res.filename}")
+                    logger.info(f"      预测: {res.label} (置信度: {res.confidence})")
         except Exception as e:
-            print(f"   批量预测失败: {str(e)}\n")
+            logger.error(f"   批量预测失败: {str(e)}")
         
-        print("=== 测试完成 ===")
+        logger.info("=== 测试完成 ===")
         
     finally:
         await service.close()

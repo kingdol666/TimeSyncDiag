@@ -1,6 +1,7 @@
 import os
 import base64
 import sys
+import logging
 from typing import Annotated, TypedDict, Optional, Iterator
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
@@ -10,11 +11,14 @@ from langgraph.graph import StateGraph, START, END
 from langgraph.graph.message import add_messages
 import uuid
 
+logger = logging.getLogger(__name__)
+
 # 添加LLMAgent目录到Python路径，以便使用绝对导入
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 from backend.logic.models.db_connection import DatabaseConnection
 from backend.logic.services.image_analysis_service import ImageAnalysisService
+from backend.config.config_loader import config as app_config
 
 # RAG knowledge base search (optional - gracefully degraded if Qdrant is unavailable)
 try:
@@ -68,26 +72,39 @@ class QwenVLAgent:
     """
     
     def __init__(self, 
-                 model_name: str = "qwen3-vl-plus",
-                 base_url: str = "https://dashscope.aliyuncs.com/compatible-mode/v1",
-                 temperature: float = 1,
-                 max_tokens: int = 5000,
+                 model_name: str = None,
+                 base_url: str = None,
+                 temperature: float = None,
+                 max_tokens: int = None,
                  db_connection: Optional[DatabaseConnection] = None):
         """
         初始化 QwenVLAgent 实例
         
         Args:
-            model_name: 模型名称，默认为 "qwen3-vl-plus"
-            base_url: API 基础 URL
-            temperature: 生成温度，控制输出随机性
-            max_tokens: 最大生成 tokens 数
-            db_connection: 数据库连接实例，可选
+            model_name: 模型名称，默认从config.yml读取
+            base_url: API地址，默认从config.yml读取
+            temperature: 温度参数，默认从config.yml读取
+            max_tokens: 最大token数，默认从config.yml读取
+            db_connection: 数据库连接
         """
-        self.model_name = model_name
-        self.base_url = base_url
-        self.temperature = temperature
-        self.max_tokens = max_tokens
-        self.api_key = os.getenv("DASHSCOPE_API_KEY")
+        # 从config.yml加载默认值
+        try:
+            from backend.config.config_loader import config as app_config
+            _model = model_name or app_config.llm.model_name
+            _base_url = base_url or app_config.llm.base_url
+            _temperature = temperature if temperature is not None else app_config.llm.temperature
+            _max_tokens = max_tokens if max_tokens is not None else app_config.llm.max_tokens
+        except Exception:
+            _model = model_name or os.getenv('LLM_MODEL_NAME', 'qwen3-vl-plus')
+            _base_url = base_url or os.getenv('LLM_BASE_URL', 'https://dashscope.aliyuncs.com/compatible-mode/v1')
+            _temperature = temperature if temperature is not None else float(os.getenv('LLM_TEMPERATURE', '1.0'))
+            _max_tokens = max_tokens if max_tokens is not None else int(os.getenv('LLM_MAX_TOKENS', '5000'))
+
+        self.model_name = _model
+        self.base_url = _base_url
+        self.temperature = _temperature
+        self.max_tokens = _max_tokens
+        self.api_key = os.getenv(app_config.llm.api_key_env)
         self._last_full_response = ""  # 存储上次调用的完整结果
         
         # 用于跟踪当前运行的工作流的终止标志
@@ -96,7 +113,7 @@ class QwenVLAgent:
         self._thread_local = threading.local()
         
         if not self.api_key:
-            raise ValueError("DASHSCOPE_API_KEY 环境变量未设置")
+            raise ValueError(f"{app_config.llm.api_key_env} 环境变量未设置")
         
         # 初始化数据库连接和服务
         if db_connection is None:
@@ -190,7 +207,7 @@ class QwenVLAgent:
                 )
             else:
                 import pytz
-                now = datetime.now(pytz.timezone('Asia/Shanghai'))
+                now = datetime.now(pytz.timezone(app_config.system.timezone))
                 self.image_analysis_service.create_analysis_result(
                     thickness_map_uuid=thickness_map_uuid,
                     detection_agent_result=detection_agent_result or "",
@@ -201,7 +218,7 @@ class QwenVLAgent:
                     updated_at=now
                 )
         except Exception as e:
-            print(f"保存分析结果到数据库失败: {e}")
+            logger.error(f"保存分析结果到数据库失败: {e}")
     
     def stream_invoke(self, image_path: str, question: str) -> Iterator[str]:
         """
@@ -399,7 +416,7 @@ class QwenVLAgent:
                     use_rag=False
                 )
             except Exception as e:
-                print(f"保存检测结果到数据库失败: {e}")
+                logger.error(f"保存检测结果到数据库失败: {e}")
         
         # 返回更新后的状态
         return {
@@ -505,7 +522,7 @@ class QwenVLAgent:
                     use_rag=False
                 )
             except Exception as e:
-                print(f"保存处理结果到数据库失败: {e}")
+                logger.error(f"保存处理结果到数据库失败: {e}")
         
         # 返回更新后的状态
         return {
@@ -616,7 +633,7 @@ class QwenVLAgent:
                     use_rag=False
                 )
             except Exception as e:
-                print(f"保存决策结果到数据库失败: {e}")
+                logger.error(f"保存决策结果到数据库失败: {e}")
         
         # 返回更新后的状态
         return {
@@ -840,10 +857,10 @@ if __name__ == "__main__":
     image_path = "TimeSyncDiag/backend/LLMAgent/images/tt.png"  # 替换为你的图片路径
     question = "请详细描述这张图片里的内容，并告诉我图片的色调是什么。"
     
-    print("正在调用 Qwen-VL 模型...")
-    print(f"图片路径: {image_path}")
-    print(f"提问内容: {question}")
-    print("=" * 60)
+    logger.info("正在调用 Qwen-VL 模型...")
+    logger.info(f"图片路径: {image_path}")
+    logger.info(f"提问内容: {question}")
+    logger.info("=" * 60)
     
     # 选择运行模式
     run_mode = "workflow"  # 可选值: "streaming", "normal", "workflow"
@@ -851,29 +868,29 @@ if __name__ == "__main__":
     try:
         if run_mode == "streaming":
             # 使用流式输出
-            print("\n--- 流式输出结果 ---")
+            logger.info("\n--- 流式输出结果 ---")
             for chunk in agent.stream_invoke(image_path, question):
-                print(chunk, end="", flush=True)
+                logger.info(chunk)
             
             # 获取并输出整体结果
             full_result = agent.get_last_response()
-            print("\n\n--- 整体结果 ---")
-            print(full_result)
+            logger.info("\n\n--- 整体结果 ---")
+            logger.info(full_result)
         elif run_mode == "normal":
             # 使用普通调用
             result = agent.invoke(image_path, question)
-            print("\n--- 普通调用结果 ---")
-            print(result)
+            logger.info("\n--- 普通调用结果 ---")
+            logger.info(result)
         elif run_mode == "workflow":
             # 使用 LangGraph 工作流，生成基础回答和增强回答
-            print("\n--- 运行 LangGraph 工作流 ---")
+            logger.info("\n--- 运行 LangGraph 工作流 ---")
             
             # 选择是否使用流式工作流
             workflow_stream = True
             
             if workflow_stream:
                 # 使用自定义的工作流流式输出
-                print("\n--- 工作流流式输出 ---")
+                logger.info("\n--- 工作流流式输出 ---")
                 final_result = None
                 
                 for event in agent.run_workflow(image_path, question, stream=True):
@@ -883,42 +900,42 @@ if __name__ == "__main__":
                         # 节点开始执行
                         node_name = event.get("node")
                         message = event.get("message")
-                        print(f"\n[{node_name}] {message}")
-                        print("=" * 50)
+                        logger.info(f"\n[{node_name}] {message}")
+                        logger.info("=" * 50)
                     elif event_type == "stream_content":
                         # 实时输出节点的流式内容
                         node_name = event.get("node")
                         content = event.get("content")
                         if content:
-                            print(content, end="", flush=True)
+                            logger.info(content)
                     elif event_type == "node_complete":
                         # 节点执行完成
                         node_name = event.get("node")
                         message = event.get("message")
-                        print(f"\n\n[{node_name}] {message}")
+                        logger.info(f"\n\n[{node_name}] {message}")
                     elif event_type == "workflow_complete":
                         # 工作流执行完成
                         message = event.get("message")
                         final_result = event.get("result")
-                        print(f"\n{message}")
-                        print("=" * 50)
+                        logger.info(f"\n{message}")
+                        logger.info("=" * 50)
                 
                 # 输出最终结果
                 if final_result:
-                    print("\n--- 最终工作流结果 ---")
-                    print("基础回答:")
-                    print(final_result["answer1"])
-                    print("\n增强回答:")
-                    print(final_result["answer2"])
+                    logger.info("\n--- 最终工作流结果 ---")
+                    logger.info("基础回答:")
+                    logger.info(final_result["answer1"])
+                    logger.info("\n增强回答:")
+                    logger.info(final_result["answer2"])
             else:
                 # 普通运行工作流
                 result = agent.run_workflow(image_path, question)
                 
-                print("\n--- 基础回答 ---")
-                print(result["answer1"])
+                logger.info("\n--- 基础回答 ---")
+                logger.info(result["answer1"])
                 
-                print("\n--- 增强回答 ---")
-                print(result["answer2"])
+                logger.info("\n--- 增强回答 ---")
+                logger.info(result["answer2"])
     except Exception as e:
-        print(f"\n错误: {e}")
-        print("请检查图片路径是否正确，以及环境变量 DASHSCOPE_API_KEY 是否配置正确。")
+        logger.error(f"\n错误: {e}")
+        logger.info("请检查图片路径是否正确，以及环境变量是否配置正确。")

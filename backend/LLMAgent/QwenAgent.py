@@ -1,4 +1,5 @@
 import os
+import logging
 from typing import Annotated, TypedDict
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
@@ -6,8 +7,11 @@ from langchain_core.messages import HumanMessage, BaseMessage
 from langgraph.graph import StateGraph, START, END
 from langgraph.graph.message import add_messages
 
-# 加载环境变量
-load_dotenv(".env")
+logger = logging.getLogger(__name__)
+
+# 加载环境变量 - 优先使用项目根目录 .env
+_project_env = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), ".env")
+load_dotenv(_project_env)
 
 # ------------------------------------------------------------------
 # 1. 定义 LangGraph 的状态 (State)
@@ -25,14 +29,28 @@ def call_qwen_bailian(state: State):
     """
     该节点负责调用 Qwen 百炼模型
     """
-    
-    # 初始化 ChatOpenAI，指向 Qwen 百炼 API
+    # 从config.yml加载LLM配置
+    try:
+        from backend.config.config_loader import config as app_config
+        _base_url = app_config.llm.base_url
+        _model = app_config.llm.model_name
+        _temperature = app_config.llm.temperature
+        _max_tokens = app_config.llm.max_tokens
+        _api_key_env = app_config.llm.api_key_env
+    except Exception:
+        _base_url = os.getenv('LLM_BASE_URL', 'https://dashscope.aliyuncs.com/compatible-mode/v1')
+        _model = os.getenv('LLM_MODEL_NAME', 'qwen-plus')
+        _temperature = float(os.getenv('LLM_TEMPERATURE', '0.7'))
+        _max_tokens = int(os.getenv('LLM_MAX_TOKENS', '1000'))
+        _api_key_env = os.getenv('LLM_API_KEY_ENV', 'DASHSCOPE_API_KEY')
+
+    # 初始化 ChatOpenAI
     llm = ChatOpenAI(
-        base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
-        api_key=os.getenv("DASHSCOPE_API_KEY"),
-        model="qwen-plus",  # Qwen 百炼模型名称
-        temperature=0.7,
-        max_tokens=1000
+        base_url=_base_url,
+        api_key=os.getenv(_api_key_env),
+        model=_model,
+        temperature=_temperature,
+        max_tokens=_max_tokens
     )
     
     # 获取当前的消息列表
@@ -90,7 +108,7 @@ if __name__ == "__main__":
     # 初始消息
     initial_message = HumanMessage(content="请介绍一下 LangGraph 的核心功能和使用场景")
     
-    print("正在调用 Qwen 百炼模型...")
+    logger.info("正在调用 Qwen 百炼模型...")
     
     # 执行 Graph
     final_state = app.invoke({
@@ -99,5 +117,5 @@ if __name__ == "__main__":
     })
     
     # 输出结果
-    print("\n--- 最终结果 ---")
-    print(final_state["messages"][-1].content)
+    logger.info("\n--- 最终结果 ---")
+    logger.info(final_state["messages"][-1].content)

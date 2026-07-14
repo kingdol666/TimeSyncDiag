@@ -1,4 +1,5 @@
 import logging
+import warnings
 import numpy as np
 import pandas as pd
 import matplotlib
@@ -6,6 +7,9 @@ matplotlib.use('Agg')  # 设置matplotlib使用非交互式后端
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from matplotlib import rcParams
+
+# 抑制matplotlib字体回退警告（CJK字符在serif字体中缺失时触发，实际由后备字体渲染）
+warnings.filterwarnings('ignore', message='Glyph .* missing from font')
 from matplotlib.colors import LinearSegmentedColormap
 import matplotlib.colors as colors
 from io import BytesIO
@@ -27,12 +31,14 @@ from ..models.mini_connection import MinioConnector
 from backend.config.config_loader import config
 
 # 配置日志
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=getattr(logging, config.system.log_level, logging.INFO))
 logger = logging.getLogger(__name__)
 
 # --- IEEE学术风格设置 ---
+# 同时支持西文serif和CJK字体，避免中文标题乱码
 rcParams['font.family'] = 'serif'
-rcParams['font.serif'] = ['Times New Roman', 'DejaVu Serif', 'Liberation Serif', 'Ubuntu Serif', 'serif']
+rcParams['font.serif'] = ['Times New Roman', 'SimHei', 'Microsoft YaHei', 'WenQuanYi Micro Hei',
+                          'Noto Sans CJK SC', 'DejaVu Serif', 'Liberation Serif', 'serif']
 rcParams['axes.unicode_minus'] = False
 rcParams['axes.linewidth'] = 0.8
 rcParams['grid.linewidth'] = 0.5

@@ -9,10 +9,14 @@ from typing import Dict, Any
 from ..models.db_connection import DatabaseConnection
 from ..processors.thickness_map_processor import ThicknessMapProcessor
 from ..consumers.base_consumer import BaseConsumer
+from backend.config.config_loader import config as app_config
 import pytz
+
 # 配置日志
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=getattr(logging, app_config.system.log_level, logging.INFO))
 logger = logging.getLogger(__name__)
+
+_SYSTEM_TIMEZONE = app_config.system.timezone
 
 class ThicknessMapConsumer(BaseConsumer):
     """
@@ -68,7 +72,7 @@ class ThicknessMapConsumer(BaseConsumer):
         while self.running:
             try:
                 # 记录开始时间
-                start_time = datetime.now(pytz.timezone('Asia/Shanghai'))
+                start_time = datetime.now(pytz.timezone(_SYSTEM_TIMEZONE))
                 
                 # 生成并保存膜厚温度云图
                 thickness_map = self.thickness_map_processor.generate_and_save_latest_map()
@@ -79,7 +83,7 @@ class ThicknessMapConsumer(BaseConsumer):
                     logger.warning("未能生成膜厚温度云图，可能是因为没有数据")
                 
                 # 计算已用时间
-                elapsed_time = (datetime.now(pytz.timezone('Asia/Shanghai')) - start_time).total_seconds()
+                elapsed_time = (datetime.now(pytz.timezone(_SYSTEM_TIMEZONE)) - start_time).total_seconds()
                 
                 # 计算剩余等待时间
                 remaining_time = max(0, self.interval_seconds - elapsed_time)

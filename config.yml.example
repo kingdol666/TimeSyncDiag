@@ -63,6 +63,23 @@ llm:
 websocket:
   update_interval: 10
   heartbeat_interval: 30
+qdrant:
+  url: http://127.0.0.1:6333
+  timeout: 30
+  collection_name: my_knowledge_base
+custom_analysis:
+  default_alignment_interval: 20
+  default_time_tolerance: 30
+  default_interpolation: linear
+  default_resample_enabled: true
+  default_chart_dpi: 300
+  default_chart_colormap: blue_green_red
+  default_chart_figsize:
+  - 16.0
+  - 16.0
+  default_sim_window: 300
+  default_sim_step: 60
+  default_sim_vlm_interval: 5
 system:
   timezone: Asia/Shanghai
   log_level: INFO

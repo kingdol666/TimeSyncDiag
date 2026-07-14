@@ -8,6 +8,7 @@
 """
 import os
 import threading
+import logging
 import yaml
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
@@ -15,6 +16,8 @@ from dotenv import load_dotenv
 
 from pydantic import BaseModel
 from .schemas import AppConfig, is_hot_reload_param, is_restart_required_param
+
+logger = logging.getLogger(__name__)
 
 
 class ConfigLoader:
@@ -263,7 +266,7 @@ class ConfigLoader:
                     callback(key_path, value)
                 except Exception as e:
                     # 回调异常不应影响主流程
-                    print(f"配置变更回调异常 [{key_path}]: {e}")
+                    logger.warning(f"配置变更回调异常 [{key_path}]: {e}")
     
     def _set_nested_value(self, d: Dict[str, Any], key_path: str, value: Any):
         """在嵌套 dict 中设置值"""
@@ -337,7 +340,17 @@ class ConfigLoader:
     def cnn_diagnosis(self):
         """CNN 诊断配置"""
         return self._app_config.cnn_diagnosis
-    
+
+    @property
+    def qdrant(self):
+        """Qdrant 配置"""
+        return self._app_config.qdrant
+
+    @property
+    def custom_analysis(self):
+        """自定义分析配置"""
+        return self._app_config.custom_analysis
+
     @property
     def system(self):
         """系统配置"""

@@ -2,6 +2,9 @@ from minio import Minio
 from minio.error import S3Error
 import os
 import io
+import logging
+
+logger = logging.getLogger(__name__)
 
 class MinioConnector:
     """MinIO Python连接工具类（Connector）"""
@@ -26,7 +29,7 @@ class MinioConnector:
         try:
             return self.client.bucket_exists(bucket_name)
         except S3Error as e:
-            print(f"检查存储桶失败：{e}")
+            logger.error(f"检查存储桶失败：{e}")
             return False
 
     def create_bucket(self, bucket_name):
@@ -34,11 +37,11 @@ class MinioConnector:
         try:
             if not self.bucket_exists(bucket_name):
                 self.client.make_bucket(bucket_name)
-                print(f"存储桶 {bucket_name} 创建成功")
+                logger.info(f"存储桶 {bucket_name} 创建成功")
             else:
-                print(f"存储桶 {bucket_name} 已存在")
+                logger.info(f"存储桶 {bucket_name} 已存在")
         except S3Error as e:
-            print(f"创建存储桶失败：{e}")
+            logger.error(f"创建存储桶失败：{e}")
 
     def upload_file(self, bucket_name, object_name, file_path):
         """
@@ -50,7 +53,7 @@ class MinioConnector:
         try:
             # 检查文件是否存在
             if not os.path.exists(file_path):
-                print(f"本地文件 {file_path} 不存在")
+                logger.error(f"本地文件 {file_path} 不存在")
                 return False
             # 上传文件（自动识别文件类型）
             self.client.fput_object(
@@ -58,10 +61,10 @@ class MinioConnector:
                 object_name=object_name,
                 file_path=file_path
             )
-            print(f"文件 {file_path} 上传成功，对象名称：{object_name}")
+            logger.info(f"文件 {file_path} 上传成功，对象名称：{object_name}")
             return True
         except S3Error as e:
-            print(f"上传文件失败：{e}")
+            logger.error(f"上传文件失败：{e}")
             return False
 
     def download_file(self, bucket_name, object_name, save_path):
@@ -78,10 +81,10 @@ class MinioConnector:
                 object_name=object_name,
                 file_path=save_path
             )
-            print(f"对象 {object_name} 下载成功，保存路径：{save_path}")
+            logger.info(f"对象 {object_name} 下载成功，保存路径：{save_path}")
             return True
         except S3Error as e:
-            print(f"下载文件失败：{e}")
+            logger.error(f"下载文件失败：{e}")
             return False
 
     def download_file_to_bytes(self, bucket_name, object_name):
@@ -103,7 +106,7 @@ class MinioConnector:
             response.release_conn()
             return data
         except S3Error as e:
-            print(f"下载文件到内存失败：{e}")
+            logger.error(f"下载文件到内存失败：{e}")
             return None
 
     def list_objects(self, bucket_name, prefix=""):
@@ -123,42 +126,42 @@ class MinioConnector:
                     "last_modified": obj.last_modified
                 }
                 object_list.append(object_info)
-                print(f"对象名称：{obj.object_name}，大小：{obj.size} 字节，最后修改时间：{obj.last_modified}")
+                logger.info(f"对象名称：{obj.object_name}，大小：{obj.size} 字节，最后修改时间：{obj.last_modified}")
             return object_list
         except S3Error as e:
-            print(f"列出对象失败：{e}")
+            logger.error(f"列出对象失败：{e}")
             return []
 
 if __name__ == "__main__":
-    # -------------------------- 配置参数（根据你的MinIO修改） --------------------------
-    MINIO_ENDPOINT = "127.0.0.1:9000"  # MinIO服务地址（本地部署默认该地址）
-    MINIO_ACCESS_KEY = "minioadmin"    # 你的MinIO用户名（对应Docker配置的MINIO_ROOT_USER）
-    MINIO_SECRET_KEY = "Minio@123456"  # 你的MinIO密码（对应Docker配置的MINIO_ROOT_PASSWORD）
-    BUCKET_NAME = "test-bucket"        # 要创建/操作的存储桶名称
-    # --------------------------------------------------------------------------------
+    from backend.config.config_loader import config
 
-    # 1. 创建MinIO连接实例（核心：初始化Connector）
+    # 从配置文件读取MinIO连接参数
+    MINIO_ENDPOINT = config.minio.endpoint
+    MINIO_ACCESS_KEY = config.minio.access_key
+    MINIO_SECRET_KEY = config.minio.secret_key
+    BUCKET_NAME = config.minio.bucket_name
+
+    # 1. 创建MinIO连接实例
     minio_connector = MinioConnector(
         endpoint=MINIO_ENDPOINT,
         access_key=MINIO_ACCESS_KEY,
         secret_key=MINIO_SECRET_KEY,
-        secure=False  # 本地部署用HTTP，设为False；生产环境HTTPS设为True
+        secure=config.minio.secure
     )
 
     # 2. 创建存储桶
     minio_connector.create_bucket(BUCKET_NAME)
 
-    # 3. 上传本地文件（示例：请替换为你的本地文件路径）
-    local_file_path = r"D:\codes\PythonCodes\Test\TimeSyncDiag\backend\data\images\1.png"  # Windows路径示例
-    # local_file_path = "/tmp/hello.txt"  # Linux/Mac路径示例
-    minio_object_name = "test/1.png"  # MinIO中的对象名称（带目录）
+    # 3. 上传本地文件（使用项目路径工具获取图片路径）
+    from backend.logic.utils.paths import get_images_dir
+    local_file_path = str(get_images_dir() / "1.png")
+    minio_object_name = "test/1.png"
     minio_connector.upload_file(BUCKET_NAME, minio_object_name, local_file_path)
 
     # 4. 列出存储桶中的所有对象
-    print("\n存储桶中的对象列表：")
+    logger.info("存储桶中的对象列表：")
     minio_connector.list_objects(BUCKET_NAME)
 
-    # 5. 下载MinIO对象到本地（示例：请替换为你的本地保存路径）
-    save_local_path = "D:/download/1.png"  # Windows保存路径
-    # save_local_path = "/tmp/hello_download.txt"  # Linux/Mac保存路径
+    # 5. 下载MinIO对象到本地
+    save_local_path = "./download/1.png"
     minio_connector.download_file(BUCKET_NAME, minio_object_name, save_local_path)

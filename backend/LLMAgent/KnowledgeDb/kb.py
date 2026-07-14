@@ -3,9 +3,18 @@ from qdrant_client.http import models
 from sentence_transformers import SentenceTransformer
 import uuid
 import os
+import logging
+
+from backend.config.config_loader import config as app_config
+
+logger = logging.getLogger(__name__)
 
 class KnowledgeBase:
-    def __init__(self, collection_name="my_knowledge_base"):
+    def __init__(self, collection_name=None):
+        # 从全局配置读取 Qdrant 参数
+        qdrant_cfg = app_config.qdrant
+        qdrant_url = os.getenv("QDRANT_URL", qdrant_cfg.url)
+        _collection_name = collection_name or qdrant_cfg.collection_name
         # 1. 连接 Qdrant
         try:
             # 临时禁用代理，避免影响本地连接
@@ -16,10 +25,10 @@ class KnowledgeBase:
             
             try:
                 self.client = QdrantClient(
-                    url="http://127.0.0.1:6333",
-                    timeout=30
+                    url=qdrant_url,
+                    timeout=qdrant_cfg.timeout
                 )
-                self.collection_name = collection_name
+                self.collection_name = _collection_name
             finally:
                 # 恢复代理设置
                 if original_http_proxy:
@@ -32,7 +41,7 @@ class KnowledgeBase:
                     os.environ['HTTPS_PROXY'] = original_HTTPS_PROXY
                     
         except Exception as e:
-            print(f"Qdrant连接失败: {e}")
+            logger.error(f"Qdrant连接失败: {e}")
             raise
         
         # 2. 加载 Embedding 模型（本地模型，也可以换成 OpenAI）
@@ -55,7 +64,7 @@ class KnowledgeBase:
                     distance=models.Distance.COSINE # 使用余弦相似度
                 ),
             )
-            print(f"集合 {self.collection_name} 创建成功")
+            logger.info(f"集合 {self.collection_name} 创建成功")
 
     # 【增】添加知识
     def add_knowledge(self, text_list):
@@ -73,7 +82,7 @@ class KnowledgeBase:
             collection_name=self.collection_name,
             points=points
         )
-        print(f"成功添加 {len(text_list)} 条知识")
+        logger.info(f"成功添加 {len(text_list)} 条知识")
 
     # 【查】检索知识（RAG核心步骤）
     def search_knowledge(self, query, top_k=3):
@@ -102,7 +111,7 @@ class KnowledgeBase:
                 points=[point_id]
             )
         )
-        print(f"ID 为 {point_id} 的知识已删除")
+        logger.info(f"ID 为 {point_id} 的知识已删除")
 
     # 【清空】清空知识库所有内容
     def clear_knowledge(self):
@@ -112,7 +121,7 @@ class KnowledgeBase:
             point_count = collection_info.points_count
             
             if point_count == 0:
-                print(f"知识库 '{self.collection_name}' 已经是空的")
+                logger.info(f"知识库 '{self.collection_name}' 已经是空的")
                 return
             
             # 删除集合中的所有点
@@ -129,10 +138,10 @@ class KnowledgeBase:
                 wait=True
             )
             
-            print(f"成功清空知识库 '{self.collection_name}'，删除了 {point_count} 条知识")
+            logger.info(f"成功清空知识库 '{self.collection_name}'，删除了 {point_count} 条知识")
             
         except Exception as e:
-            print(f"清空知识库时出错: {e}")
+            logger.error(f"清空知识库时出错: {e}")
 
     # 【改】更新知识内容
     def update_knowledge(self, point_id, new_text):
@@ -148,14 +157,14 @@ class KnowledgeBase:
                 )
             ]
         )
-        print(f"ID 为 {point_id} 的知识已更新")
+        logger.info(f"ID 为 {point_id} 的知识已更新")
 
 # --- 使用示例 ---
 if __name__ == "__main__":
     kb = KnowledgeBase()
 
     # 4. 清空知识库
-    print("\n清空知识库...")
+    logger.info("\n清空知识库...")
     kb.clear_knowledge()
 
     # 1. 增
@@ -234,10 +243,10 @@ if __name__ == "__main__":
     kb.add_knowledge([knowledge_text])
 
     # 2. 查
-    print("\n搜索：什么是容器？")
+    logger.info("\n搜索：什么是容器？")
     res = kb.search_knowledge("LangChain 0.3 推荐用什么构建链条？")
     for r in res:
-        print(f"相似度: {r['score']:.4f} | 内容: {r['content']}")
+        logger.info(f"相似度: {r['score']:.4f} | 内容: {r['content']}")
 
     # 3. 改（假设我们要修改第一条，先拿到它的 ID）
     target_id = res[0]['id']

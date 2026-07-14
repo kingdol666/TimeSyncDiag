@@ -13,9 +13,14 @@ from kafka import KafkaProducer
 from kafka.errors import KafkaError
 import logging
 
+from backend.config.config_loader import config as app_config
+
 # 配置日志
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=getattr(logging, app_config.system.log_level, logging.INFO))
 logger = logging.getLogger(__name__)
+
+# 从配置读取时区
+_SYSTEM_TIMEZONE = app_config.system.timezone
 
 # ── 路径引用（注意：此文件在 logic/producers/，使用相对路径访问 utils/）──
 # PROJECT_ROOT = backend/ 的父目录 = TimeSyncDiag
@@ -90,7 +95,7 @@ class SensorDataProducer:
             unit = 'boolean'
         
         # 生成北京时间（UTC+8）的时间戳
-        shanghai_tz = pytz.timezone('Asia/Shanghai')
+        shanghai_tz = pytz.timezone(_SYSTEM_TIMEZONE)
         now_shanghai = datetime.now(shanghai_tz)
         # 转换为Unix时间戳
         beijing_timestamp = now_shanghai.timestamp()
@@ -249,7 +254,7 @@ class DetectionDataProducer:
             # 获取文件夹下所有CSV文件（兼容 .csv 和 .CSV）
             self.csv_files = glob.glob(os.path.join(self.csv_folder, "*.csv")) + \
                              glob.glob(os.path.join(self.csv_folder, "*.CSV"))
-            shanghai_tz = pytz.timezone('Asia/Shanghai')
+            shanghai_tz = pytz.timezone(_SYSTEM_TIMEZONE)
             self.last_update_time = datetime.now(shanghai_tz)
             logger.info(f"找到 {len(self.csv_files)} 个CSV文件")
         except Exception as e:
@@ -365,10 +370,10 @@ class DetectionDataProducer:
                 timestamp = pd.to_datetime(timestamp_str, errors='coerce')
                 if pd.isna(timestamp):
                     # 如果解析失败，使用当前时间
-                    timestamp = datetime.now(pytz.timezone('Asia/Shanghai'))
+                    timestamp = datetime.now(pytz.timezone(_SYSTEM_TIMEZONE))
             except Exception:
                 # 如果解析失败，使用当前时间
-                timestamp = datetime.now(pytz.timezone('Asia/Shanghai'))
+                timestamp = datetime.now(pytz.timezone(_SYSTEM_TIMEZONE))
             
             # 获取除第一列外的前3000列数据作为有效数据
             if len(selected_row) > 1:
@@ -444,8 +449,8 @@ class DetectionDataProducer:
                 'device_id': random.choice(self.device_ids),
                 'detection_type': random.choice(self.detection_types),
                 'values': [round(random.uniform(0.1, 0.2), 3) for _ in range(100)],
-                'start_time': (datetime.now(pytz.timezone('Asia/Shanghai')) - timedelta(seconds=6)).isoformat(),
-                'end_time': datetime.now(pytz.timezone('Asia/Shanghai')).isoformat(),
+                'start_time': (datetime.now(pytz.timezone(_SYSTEM_TIMEZONE)) - timedelta(seconds=6)).isoformat(),
+                'end_time': datetime.now(pytz.timezone(_SYSTEM_TIMEZONE)).isoformat(),
                 'error': '无法获取CSV数据'
             }
         

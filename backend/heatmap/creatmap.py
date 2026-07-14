@@ -17,15 +17,19 @@ from typing import List, Tuple, Dict
 import glob
 from datetime import datetime, timedelta
 
+# 抑制matplotlib字体回退警告（CJK字符在serif字体中缺失时触发，实际由后备字体渲染）
+warnings.filterwarnings('ignore', message='Glyph .* missing from font')
+
 # 设置matplotlib支持中文显示
 plt.rcParams['font.sans-serif'] = ['SimHei', 'Microsoft YaHei', 'DejaVu Sans']
 plt.rcParams['axes.unicode_minus'] = False
 plt.rcParams['figure.figsize'] = (15, 10)
 
 # --- IEEE学术风格设置 ---
-# 优先使用Times New Roman字体
+# 同时支持西文serif和CJK字体，避免中文标题乱码
 rcParams['font.family'] = 'serif'
-rcParams['font.serif'] = ['Times New Roman', 'DejaVu Serif', 'Liberation Serif', 'Ubuntu Serif', 'serif']
+rcParams['font.serif'] = ['Times New Roman', 'SimHei', 'Microsoft YaHei', 'WenQuanYi Micro Hei',
+                          'Noto Sans CJK SC', 'DejaVu Serif', 'Liberation Serif', 'serif']
 rcParams['axes.unicode_minus'] = False  # 解决负号显示为方块的问题
 rcParams['axes.linewidth'] = 0.8
 rcParams['grid.linewidth'] = 0.5

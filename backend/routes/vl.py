@@ -5,7 +5,10 @@ from httpx import Request
 from pydantic import BaseModel
 import os
 import tempfile
+import logging
 import backend.state as state
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["视觉诊断 Agent"])
 
@@ -58,16 +61,16 @@ async def analyze_image(
                 
         except GeneratorExit:
             # 客户端断开连接时，ASGI 服务器会触发这个异常
-            print("客户端断开连接，尝试终止 Agent 流程...")
+            logger.info("客户端断开连接，尝试终止 Agent 流程...")
             state.vl_agent.terminate_workflow()
             
         except Exception as e:
             # 捕获其他运行时异常
-            print(f"流式传输发生错误: {e}")
+            logger.error(f"流式传输发生错误: {e}")
             
         finally:
             # 确保临时文件被删除，无论流程是成功、失败还是被中断
-            print("执行 finally 清理...")
+            logger.info("执行 finally 清理...")
             if os.path.exists(temp_detect_path):
                 os.unlink(temp_detect_path)
             if os.path.exists(temp_process_path):

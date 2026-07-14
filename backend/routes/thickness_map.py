@@ -117,7 +117,7 @@ async def get_latest_map():
                         with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as temp_file:
                             temp_file_path = temp_file.name
                         
-                        if state.minio_connector.download_file("test-bucket", latest_map.map_image_path, temp_file_path):
+                        if state.minio_connector.download_file(state.BUCKET_NAME, latest_map.map_image_path, temp_file_path):
                             with open(temp_file_path, 'rb') as f:
                                 map_image_bytes = f.read()
                             os.unlink(temp_file_path)
@@ -241,7 +241,7 @@ async def get_map_by_time_range(request: TimeRangeRequest):
                             with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as temp_file:
                                 temp_file_path = temp_file.name
                             
-                            if state.minio_connector.download_file("test-bucket", map_item.map_image_path, temp_file_path):
+                            if state.minio_connector.download_file(state.BUCKET_NAME, map_item.map_image_path, temp_file_path):
                                 with open(temp_file_path, 'rb') as f:
                                     map_image_bytes = f.read()
                                 os.unlink(temp_file_path)

@@ -108,6 +108,36 @@ class SystemConfig(BaseModel):
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = Field(default="INFO", description="日志级别")
 
 
+class QdrantConfig(BaseModel):
+    """Qdrant 向量数据库配置（RAG 知识库）"""
+    url: str = Field(default="http://127.0.0.1:6333", description="Qdrant 服务地址")
+    timeout: int = Field(default=30, ge=1, le=300, description="Qdrant 连接超时（秒）")
+    collection_name: str = Field(default="my_knowledge_base", description="知识库集合名称")
+
+
+class CustomAnalysisConfig(BaseModel):
+    """自定义时空对齐分析默认配置"""
+    default_alignment_interval: int = Field(default=20, ge=1, le=3600, description="默认对齐间隔（秒）")
+    default_time_tolerance: int = Field(default=30, ge=1, le=3600, description="默认时间容差（秒）")
+    default_interpolation: Literal["linear", "nearest", "none"] = Field(default="linear", description="默认插值方法")
+    default_resample_enabled: bool = Field(default=True, description="默认是否启用重采样")
+    default_chart_dpi: int = Field(default=300, ge=72, le=2400, description="默认图表 DPI")
+    default_chart_colormap: str = Field(default="blue_green_red", description="默认配色方案")
+    default_chart_figsize: List[float] = Field(default=[16.0, 16.0], description="默认图表尺寸")
+    default_sim_window: int = Field(default=300, ge=10, le=7200, description="默认模拟窗口大小（秒）")
+    default_sim_step: int = Field(default=60, ge=1, le=3600, description="默认模拟步长（秒）")
+    default_sim_vlm_interval: int = Field(default=5, ge=1, le=100, description="默认 VLM 诊断间隔（步）")
+
+    @field_validator('default_chart_figsize')
+    @classmethod
+    def validate_figsize(cls, v: List[float]) -> List[float]:
+        if len(v) != 2:
+            raise ValueError("figsize 必须包含两个数值 [width, height]")
+        if v[0] <= 0 or v[1] <= 0:
+            raise ValueError("figsize 的宽度和高度必须大于 0")
+        return v
+
+
 class AppConfig(BaseModel):
     """应用总配置"""
     database: DatabaseConfig = Field(default_factory=DatabaseConfig)
@@ -119,6 +149,8 @@ class AppConfig(BaseModel):
     cnn_diagnosis: CnnDiagnosisConfig = Field(default_factory=CnnDiagnosisConfig)
     llm: LlmConfig = Field(default_factory=LlmConfig)
     websocket: WebSocketConfig = Field(default_factory=WebSocketConfig)
+    qdrant: QdrantConfig = Field(default_factory=QdrantConfig)
+    custom_analysis: CustomAnalysisConfig = Field(default_factory=CustomAnalysisConfig)
     system: SystemConfig = Field(default_factory=SystemConfig)
 
 
@@ -127,6 +159,7 @@ HOT_RELOAD_PARAMS = {
     "thickness_map",
     "websocket",
     "cnn_diagnosis",
+    "custom_analysis",
     "kafka.sensor_producer_interval",
     "kafka.detection_producer_interval",
     "kafka.consumer_poll_timeout_ms",
@@ -163,6 +196,9 @@ RESTART_REQUIRED_PARAMS = {
     "llm.model_name",
     "llm.base_url",
     "llm.api_key_env",
+    "qdrant.url",
+    "qdrant.timeout",
+    "qdrant.collection_name",
     "system.timezone",
 }
 

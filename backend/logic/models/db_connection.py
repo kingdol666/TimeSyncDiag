@@ -7,7 +7,7 @@ from sqlalchemy.orm import sessionmaker, Session
 from backend.config.config_loader import config
 
 # 配置日志
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=getattr(logging, config.system.log_level, logging.INFO))
 logger = logging.getLogger(__name__)
 
 # 创建基类
@@ -65,12 +65,12 @@ class DatabaseConnection:
             # 测试连接并设置时区
             with self.engine.connect() as conn:
                 conn.execute(text("SELECT 1"))
-                conn.execute(text("SET TIME ZONE 'Asia/Shanghai'"))
+                conn.execute(text(f"SET TIME ZONE '{config.system.timezone}'"))
                 conn.commit()
             
             self.connected = True
             logger.info(f"成功连接到TimescaleDB: {self.db_url}")
-            logger.info("数据库时区已设置为: Asia/Shanghai")
+            logger.info(f"数据库时区已设置为: {config.system.timezone}")
             
             # 创建所有表
             self.create_tables()
@@ -104,6 +104,7 @@ class DatabaseConnection:
         try:
             # 导入所有模型类，确保它们在创建表之前被注册
             from .models import SensorData, DetectionDeviceData, ThicknessMap, ImageAnalysisResult
+            from .custom_models import AnalysisTemplate, UploadedDataset, CustomAnalysisResult, SimulationRun, SimulationStep
             
             # 创建所有表
             Base.metadata.create_all(bind=self.engine)
